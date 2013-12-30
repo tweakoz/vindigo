@@ -3,12 +3,20 @@
 *.txt svneol=native#text/plain
 *.xml svneol=native#text/xml
 *.hsi svneol=native#text/xml
+*.dtd svneol=native#application/xml-dtd
 hlsl/*.fx svneol=native#text/plain
 keymaps/*.map svneol=native#text/plain
-/makefile svneol=native#text/plain
+makefile svneol=native#text/plain
+Makefile svneol=native#text/plain
 *.mak svneol=native#text/plain
 *.c svneol=native#text/plain
+*.cpp svneol=native#text/plain
 *.h svneol=native#text/plain
+*.hpp svneol=native#text/plain
+*.inc svneol=native#text/plain
+*.inl svneol=native#text/plain
+*.in svneol=native#text/plain
+*.ops svneol=native#text/plain
 *.lay svneol=native#text/xml
 *.lst svneol=native#text/plain
 *.ico -text svneol=unset#image/x-icon
@@ -20,24 +28,10 @@ src/osd/sdl/man/* svneol=LF#text/plain eol=lf
 src/osd/sdl/shader/*.vsh svneol=native#text/plain
 src/osd/sdl/shader/*.fsh svneol=native#text/plain
 *.py svneol=native#text/plain
-src/regtests/chdman/**/*.chd -text
-src/regtests/chdman/**/*.cue svneol=native#text/plain
-src/regtests/chdman/**/*.wav -text
-src/regtests/chdman/**/in.params svneol=native#text/plain
-src/regtests/chdman/**/*.bin -text
-src/regtests/chdman/**/*.iso -text
-src/regtests/chdman/**/*.nrg -text
-src/regtests/chdman/**/*.toc svneol=native#text/plain
-src/regtests/chdman/**/*.raw -text
-src/regtests/chdman/**/*.avi -text
-src/regtests/jedutil/eqns/**/*.psf svneol=native#text/plain
-src/regtests/jedutil/eqns/**/*.eqn svneol=native#text/plain
-src/regtests/jedutil/eqns/**/*.pds svneol=native#text/plain
-src/regtests/jedutil/eqns/**/*.abl svneol=native#text/plain
-src/regtests/jedutil/eqns/**/*.syn svneol=native#text/plain
-src/regtests/jedutil/jeds/**/*.jed -text svneol=unset#application/octet-stream
 *.cmd svneol=CRLF#text/plain eol=crlf
 *.html svneol=native#text/html
 *.gif -text svneol=unset#image/gif
 *.css svneol=native#text/css
 *.js svneol=native#text/javascript
+readme svneol=native#text/plain
+README svneol=native#text/plain

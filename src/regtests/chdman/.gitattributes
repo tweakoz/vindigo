@@ -1,0 +1,10 @@
+*.chd -text
+*.cue svneol=native#text/plain
+*.wav -text
+in.params svneol=native#text/plain
+*.bin -text
+*.iso -text
+*.nrg -text
+*.toc svneol=native#text/plain
+*.raw -text
+*.avi -text
