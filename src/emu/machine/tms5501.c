@@ -70,6 +70,7 @@ tms5501_device::tms5501_device(const machine_config &mconfig, const char *tag, d
 	m_rr(0),
 	m_tb(0),
 	m_mr(0),
+	m_rcv(1),
 	m_sens(0),
 	m_xi7(0)
 {
@@ -117,6 +118,8 @@ void tms5501_device::device_reset()
 	transmit_register_reset();
 
 	m_write_xmt(1);
+	set_out_data_bit(1);
+	serial_connection_out();
 
 	check_interrupt();
 }
@@ -195,28 +198,7 @@ void tms5501_device::tra_complete()
 
 void tms5501_device::rcv_callback()
 {
-	int bit = get_in_data_bit();
-
-	receive_register_update_bit(bit);
-
-	if (bit)
-	{
-		m_sta |= STA_SR;
-	}
-	else
-	{
-		m_sta &= ~STA_SR;		
-	}
-
-	if (is_receive_register_synchronized())
-	{
-		m_sta |= STA_SBD;
-	}
-
-	if (is_receive_register_shifting())
-	{
-		m_sta |= STA_FBD;
-	}
+	receive_register_update_bit(m_rcv);
 }
 
 
@@ -229,12 +211,22 @@ void tms5501_device::rcv_complete()
 	receive_register_extract();
 	m_rb = get_received_char();
 
+	if (is_receive_framing_error())
+	{
+		m_sta |= STA_FE;
+	}
+	else
+	{
+		m_sta &= ~STA_FE;
+	}
+
 	if (m_sta & STA_RBL)
 	{
 		m_sta |= STA_OE;
 	}
 
-	m_sta |= STA_RBL;
+	m_sta |= (STA_RBL | STA_SR);
+	m_sta &= ~(STA_SBD | STA_FBD);
 
 	set_interrupt(IRQ_RB);
 }
@@ -257,6 +249,9 @@ void tms5501_device::input_callback(UINT8 state)
 READ8_MEMBER( tms5501_device::rb_r )
 {
 	m_sta &= ~STA_RBL;
+	m_irq &= ~IRQ_RB;
+
+	check_interrupt();
 
 	return m_rb;
 }
@@ -295,7 +290,11 @@ READ8_MEMBER( tms5501_device::rst_r )
 
 READ8_MEMBER( tms5501_device::sta_r )
 {
-	return m_sta;
+	UINT8 data = m_sta;
+
+	m_sta &= ~STA_OE;
+
+	return data;
 }
 
 
@@ -318,6 +317,8 @@ WRITE8_MEMBER( tms5501_device::cmd_w )
 		transmit_register_reset();
 
 		m_write_xmt(1);
+		set_out_data_bit(1);
+		serial_connection_out();
 
 		m_irq = 0;
 		set_interrupt(IRQ_TB);
@@ -334,6 +335,8 @@ WRITE8_MEMBER( tms5501_device::cmd_w )
 		transmit_register_reset();
 
 		m_write_xmt(0);
+		set_out_data_bit(0);
+		serial_connection_out();
 	}
 }
 
@@ -418,6 +421,8 @@ WRITE8_MEMBER( tms5501_device::mr_w )
 	if (LOG) logerror("TMS5501 '%s' Mask Register %02x\n", tag(), data);
 
 	m_mr = data;
+
+	check_interrupt();
 }
 
 
@@ -439,7 +444,21 @@ WRITE8_MEMBER( tms5501_device::tmr_w )
 
 WRITE_LINE_MEMBER( tms5501_device::rcv_w )
 {
+	m_rcv = state;
+
 	device_serial_interface::rx_w(state);
+
+	if (is_receive_register_synchronized())
+	{
+		m_sta |= STA_SBD;
+		m_sta &= ~STA_SR;
+	}
+
+	if (is_receive_register_shifting())
+	{
+		m_sta |= STA_FBD;
+	}
+	//logerror("RCV %u SR %u SBD %u FBD %u FE %u OE %u\n",state,m_sta&STA_SR?1:0,m_sta&STA_SBD?1:0,m_sta&STA_FBD?1:0,m_sta&STA_FE?1:0,m_sta&STA_OE?1:0);
 }
 
 
