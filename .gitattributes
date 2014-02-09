@@ -35,5 +35,4 @@ src/osd/sdl/shader/*.fsh svneol=native#text/plain
 *.js svneol=native#text/javascript
 readme svneol=native#text/plain
 README svneol=native#text/plain
-hash/coco_flop.xml svneol=native#text/plain
 src/mame/layout/bingo.lay svneol=native#text/plain
