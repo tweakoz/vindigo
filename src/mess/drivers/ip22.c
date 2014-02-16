@@ -294,11 +294,19 @@ READ32_MEMBER(ip22_state::hpc3_pbus6_r)
 		//verboselog(2, "Serial 2 Command Transfer Read, 0x1fbd9838: %02x\n", 0x04 );
 		return 0x00000004;
 	case 0x40/4:
-		return m_kbdc8042->data_r(space, 0);
+	{
+		uint32_t r = m_kbdc8042->data_r(space, 0);
+		printf("8042 Read a r<%08x>\n", r );
+		return r;
+	}
 	case 0x44/4:
-		return m_kbdc8042->data_r(space, 4);
+	{
+		uint32_t r = m_kbdc8042->data_r(space, 4);
+		if( r!=4 && r!=0x14 ) printf("8042 Read b r<%08x>\n", r );
+		return r;
+	}
 	case 0x58/4:
-		return 0x20;    // chip rev 1, board rev 0, "Guinness" (Indy) => 0x01 for "Full House" (Indigo2)
+		return 0x20;    // 0x20 : chip rev 1, board rev 0, "Guinness" (Indy) => 0x01 for "Full House" (Indigo2)
 	case 0x80/4:
 	case 0x84/4:
 	case 0x88/4:
@@ -1244,7 +1252,11 @@ void ip22_state::machine_reset()
 
 void ip22_state::dump_chain(address_space &space, UINT32 ch_base)
 {
-	printf("node: %08x %08x %08x (len = %x)\n", space.read_dword(ch_base), space.read_dword(ch_base+4), space.read_dword(ch_base+8), space.read_dword(ch_base+4) & 0x3fff);
+	printf("dump_chain node: %08x %08x %08x (len = %x)\n", 
+		space.read_dword(ch_base),
+		space.read_dword(ch_base+4),
+		space.read_dword(ch_base+8),
+		space.read_dword(ch_base+4) & 0x3fff);
 
 	if ((space.read_dword(ch_base+8) != 0) && !(space.read_dword(ch_base+4) & 0x80000000))
 	{
@@ -1286,7 +1298,7 @@ WRITE_LINE_MEMBER(ip22_state::scsi_irq)
 				m_HPC3.nSCSI0Descriptor += words*4;
 				dptr = 0;
 
-				printf("DMA to device: %d words @ %x\n", words, wptr);
+				printf("scsi DMA to device: %d words @ %x\n", words, wptr);
 
 				dump_chain(space, m_HPC3.nSCSI0Descriptor);
 
@@ -1427,7 +1439,7 @@ WRITE_LINE_MEMBER(ip22_state::scsi_irq)
 				wptr = space.read_dword(m_HPC3.nSCSI0Descriptor);
 				sptr = 0;
 
-//              mame_printf_info("DMA from device: %d words @ %x\n", words, wptr);
+              mame_printf_info("DMA from device: %d words @ %x\n", words, wptr);
 
 				dump_chain(space, m_HPC3.nSCSI0Descriptor);
 
@@ -1641,8 +1653,10 @@ static MACHINE_CONFIG_START( ip225015, ip22_state )
 	MCFG_SCREEN_ADD("screen", RASTER)
 	MCFG_SCREEN_REFRESH_RATE( 60 )
 	MCFG_SCREEN_VBLANK_TIME(ATTOSECONDS_IN_USEC(2500)) /* not accurate */
+
 	MCFG_SCREEN_SIZE(1280+64, 1024+64)
 	MCFG_SCREEN_VISIBLE_AREA(0, 1279, 0, 1023)
+
 	MCFG_SCREEN_UPDATE_DEVICE("newport", newport_video_device, screen_update)
 
 	MCFG_PALETTE_LENGTH(65536)

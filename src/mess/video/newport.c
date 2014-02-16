@@ -967,7 +967,8 @@ WRITE32_MEMBER( newport_video_device::rex3_w )
 
 	if( offset & 0x00000200 )
 	{
-		//verboselog(machine(), 2, "Start Cmd\n" );
+		//verboselog(machine(), 2, "np::Start Cmd\n" );
+		//printf("np::Start Cmd\n" );
 	}
 	switch( offset )
 	{
